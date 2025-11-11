@@ -45,3 +45,5 @@ API tüketimini optimize etmek ve uygulamayı kötüye kullanıma karşı koruma
 •	OpenAI veya Google Gemini API anahtarı
 •	Opsiyonel: Hugging Face API Token 
 
+🚀 Demo
+Projeyi canlı olarak deneyin: [[Dil Eğitmeni Chatbotu](https://chatbot-v2-0.streamlit.app/)]
