@@ -1,0 +1,34 @@
+name: Keep Streamlit Alive
+
+on:
+  schedule:
+    - cron: '0 */11 * * *'  # Her 11 saatte bir (UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write  # push yapabilmek için gerekli izin
+
+jobs:
+  keep_alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Update keepalive file
+        run: |
+          echo "Last ping: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > keepalive.txt
+          git add keepalive.txt
+          git status --porcelain
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Keepalive: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            git push
+          fi
