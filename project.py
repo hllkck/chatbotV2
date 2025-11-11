@@ -326,7 +326,7 @@ def create_rag_chain(_vectorstore: Chroma):
 
 def main():
     st.set_page_config(page_title="Translation Bot", layout="wide")
-    st.title("📚 Dynamic RAG-Powered Translation Bot (with Sentence Translation and Voice-over)")      
+    st.title("Dynamic RAG-Powered Translation Bot (with Sentence Translation and Voice-over)")
     
     data_content = None
     data_source_name = "Streamlit Secrets"
@@ -340,11 +340,40 @@ def main():
         return
 
     try:
-        _vectorstore = index_data(data_content, CHROMA_DB_DIR) 
+        _vectorstore = index_data(data_content, CHROMA_DB_DIR)
         rag_chain = create_rag_chain(_vectorstore)
     except Exception as e:
-        st.error(f"A critical error occurred during system installation (Indexing or RAG Chain creation): {e}") 
-        return 
+        st.error(f"A critical error occurred during system installation (Indexing or RAG Chain creation): {e}")
+        return
+
+    
+    info_text = f"""
+    ## 📚 Welcome to your English-Turkish Language Teaching Assistant!
+    
+    This smart bot is designed for language learning and translation. It responds in two different modes depending on your query type:
+    
+    ### 1. 🔍 Vocabulary Queries (Level-Aware)
+    * **Query:** The meaning, level, or usage of a word.
+    * **Answer:** Includes **level information (A1, B2, etc.)**, its meaning, and 3 example sentences from our proprietary database.
+    * **Example:** `What does execute mean?`
+    
+    ### 2. 💬 Sentence Translation (Quick Response)
+    * **Query:** Translates a long sentence.
+    * **Answer:** Provides a quick and direct translation, skipping RAG steps.
+    * **Example:** `I don't want to be late for the meeting tomorrow.`
+    
+    ---
+    
+    ### ✨ Additional Features
+    * **Read Aloud:** All English output is automatically converted to audio.
+    
+    ### 🛡️ Usage Notes
+    * **Topic Restriction:** The bot only responds to questions related to **translation and language learning**. (General topics are blocked.)
+    * **Speed Throttling:** To maintain API quota consumption, you must wait **{RATE_LIMIT_SECONDS} seconds** between consecutive queries.
+    """
+    
+    st.markdown(info_text)
+
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -358,16 +387,16 @@ def main():
             content = message["content"]
             st.markdown(content)
             
-    if prompt := st.chat_input("Ask for a word or a sentence to be translated..."): 
+    if prompt := st.chat_input("Ask for a word or a sentence to be translated..."):
         
         is_allowed, remaining_time = check_rate_limit(st.session_state)
         if not is_allowed:
             st.warning(f"⚠️ **Too Fast!** Please wait **{remaining_time:.2f}** seconds before sending a new query to protect API usage.")
-            return 
+            return
         
         if not check_prompt_relevance(prompt):
             st.error("❌ **Prompt Blocked:** Your query is outside the scope of translation and language learning. Please ask questions related only to word meanings, sentence translations, or language assistance.")
-            return 
+            return
         
         timestamp = st.session_state.get("message_counter", 0) + 1
         st.session_state["message_counter"] = timestamp
@@ -378,12 +407,12 @@ def main():
 
         with st.chat_message("assistant"):
             assistant_response_container = st.empty()
-            with st.spinner("The answer is being sought and created..."): 
+            with st.spinner("The answer is being sought and created..."):
                 try:
-                    input_data = {"input": prompt} 
+                    input_data = {"input": prompt}
                     result = rag_chain.invoke(input_data)
                     
-                    assistant_response_container.markdown(result) 
+                    assistant_response_container.markdown(result)
                     
                     english_words_to_speak = extract_english_word(result, prompt)
                     
@@ -418,11 +447,11 @@ def main():
                     st.session_state.messages.append({"role": "assistant", "content": result, "timestamp": timestamp})
                     
                 except Exception as e:
-                    error_msg = f"A critical error occurred while generating the response: {e}" 
+                    error_msg = f"A critical error occurred while generating the response: {e}"
                     st.error(error_msg)
                     st.session_state.messages.append({"role": "assistant", "content": error_msg, "timestamp": timestamp})
 
 if __name__ == "__main__":
-
     main()
+
 
