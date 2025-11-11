@@ -333,7 +333,7 @@ def main():
     
     if "data_storage" in st.secrets and WORD_DATA_SECRET_KEY in st.secrets["data_storage"]:
           data_content = st.secrets["data_storage"][WORD_DATA_SECRET_KEY]
-          st.caption(f"Data Source: **{data_source_name}** (`[data_storage]` table)")
+          #st.caption(f"Data Source: **{data_source_name}** (`[data_storage]` table)")
     
     if not data_content:
         st.error(f"CRITICAL ERROR: The table **'[data_storage]'** or its key **'{WORD_DATA_SECRET_KEY}'** could not be found in Streamlit Secrets, or the content is empty. The application cannot be started. Please check your '.streamlit/secrets.toml' file.")
@@ -423,4 +423,5 @@ def main():
                     st.session_state.messages.append({"role": "assistant", "content": error_msg, "timestamp": timestamp})
 
 if __name__ == "__main__":
+
     main()
