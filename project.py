@@ -326,7 +326,7 @@ def create_rag_chain(_vectorstore: Chroma):
 
 def main():
     st.set_page_config(page_title="Translation Bot", layout="wide")
-    st.title("📚 Dynamic RAG-Powered Translation Bot (with Sentence Translation)")      
+    st.title("📚 Dynamic RAG-Powered Translation Bot (with Sentence Translation and Voice-over)")      
     
     data_content = None
     data_source_name = "Streamlit Secrets"
@@ -425,3 +425,4 @@ def main():
 if __name__ == "__main__":
 
     main()
+
