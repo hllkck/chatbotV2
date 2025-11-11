@@ -1,0 +1,14 @@
+data/words.txt
+.streamlit/secrets.toml
+.env
+chroma_db/
+venv/
+env/
+__pycache__/
+*.pyc
+*.o
+*.so
+*.egg-info/
+.installed.cfg
+.env
+.streamlit/cache/
