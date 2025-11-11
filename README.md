@@ -1,7 +1,8 @@
 📚 Dinamik RAG Destekli Dil Eğitmeni Chatbotu (V2)
+
 🌟 Proje Hakkında
 Proje, LangChain Expression Language (LCEL) mimarisini kullanarak oluşturduğum, dil öğrenimine odaklanan akıllı bir çeviri botudur. Geleneksel çeviri uygulamalarından farklı olarak, özel bir kelime dağarcığı verisetinden (ChromaDB'de vektörleştirdiğim) seviye bilgisi (A1, B2 vb.) içeren zenginleştirilmiş yanıtlar üretiyor.
-(V1 Bilgisi): Projenin ilk sürümü (V1), temel RAG yapısını kullanarak sadece kelime sorgularını yanıtlamaktaydı. V1 sürümünün kod yapısını ve detaylarını [[İLK VERSİYON GİTHUB LİNKİ](https://github.com/hllkck/chatbot)] adresinden inceleyebilirsiniz.
+(V1 Bilgisi): Projenin ilk sürümü, temel RAG yapısını kullanarak sadece kelime sorgularını yanıtlamaktaydı. V1 sürümünün kod yapısını ve detaylarını [[İLK VERSİYON GİTHUB LİNKİ](https://github.com/hllkck/chatbot)] adresinden inceleyebilirsiniz.
 V2 sürümünü, verimlilik ve kullanıcı deneyimini maksimuma çıkarmak için dinamik sorgu yönlendirmesi ve sesli okuma özellikleriyle geliştirdim.
 
 🚀 V2 Mimarisi ve Temel Yenilikler
@@ -29,6 +30,7 @@ RAG'den gelen verinin LLM tarafından doğru yorumlanmasını sağladım.
 Projeme dahil ettiğim MultiQueryRetriever özelliği, arama kalitesini artırmak için her kullanıcı sorgusunu arkada 3-5 farklı sorguya dönüştürüyor.
 Bu, herhangi bir LLM sağlayıcısında (OpenAI, Gemini vb.) API çağrısı tüketimini 4-6 kat artırıyor.
 Tavsiye: Uygulamanız yüksek trafik alıyorsa veya kota kısıtlı bir anahtar kullanıyorsanız, MultiQueryRetriever yerine basit _vectorstore.as_retriever kullanılarak LLM çağrısı sayısı kullanıcı başına 1'e düşürülmelidir.
+
 🔒 Güvenlik ve API Kota Koruması
 API tüketimini optimize etmek ve uygulamayı kötüye kullanıma karşı korumak için iki temel güvenlik önlemi entegre edilmiştir.
 1. ⏱️ Hız Sınırlama (Rate Limiting)
@@ -38,8 +40,7 @@ API tüketimini optimize etmek ve uygulamayı kötüye kullanıma karşı koruma
 •	Amaç: LLM'in yalnızca dil öğrenimi ve çeviri görevlerine odaklanmasını sağlamak ve genel sorular için API çağrısı yapılmasını engellemek.
 •	Mekanizma: Kullanıcı girdisi, çeviri veya kelime anlamı dışındaki genel konuları (tarih, siyaset, yemek tarifi vb.) içeriyorsa, sorgu LLM'e gönderilmeden engellenir ve bir uyarı mesajı gösterilir.
 
-⚙️ Kurulum ve Çalıştırma
-Ön Gereksinimler
+⚙️ Ön Gereksinimler
 •	Python 3.11
 •	OpenAI veya Google Gemini API anahtarı
 •	Opsiyonel: Hugging Face API Token 
