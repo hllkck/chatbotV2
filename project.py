@@ -362,7 +362,6 @@ def main():
     * **Answer:** Provides a quick and direct translation, skipping RAG steps.
     * **Example:** `I don't want to be late for the meeting tomorrow.`
     
-    ---
     
     ### ✨ Additional Features
     * **Read Aloud:** All English output is automatically converted to audio.
@@ -370,6 +369,8 @@ def main():
     ### 🛡️ Usage Notes
     * **Topic Restriction:** The bot only responds to questions related to **translation and language learning**. (General topics are blocked.)
     * **Speed Throttling:** To maintain API quota consumption, you must wait **{RATE_LIMIT_SECONDS} seconds** between consecutive queries.
+
+    ---
     """
     
     st.markdown(info_text)
@@ -453,5 +454,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
