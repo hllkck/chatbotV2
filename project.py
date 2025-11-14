@@ -16,6 +16,7 @@ from langchain_core.runnables import RunnableLambda
 from gtts import gTTS
 import io
 import base64
+import hashlib
 
 
 CHROMA_DB_DIR = "chroma_db/"
@@ -23,6 +24,8 @@ EMBEDDING_MODEL = "paraphrase-multilingual-mpnet-base-v2"
 GENERATION_MODEL = "gemini-2.5-flash"
 WORD_DATA_SECRET_KEY = "WORD_DATA_CONTENT" 
 RATE_LIMIT_SECONDS = 3 
+TTS_CACHE_DIR = Path("tts_cache/") 
+TTS_CACHE_DIR.mkdir(exist_ok=True)
 
 
 try:
@@ -416,32 +419,62 @@ def main():
                     assistant_response_container.markdown(result)
                     
                     english_words_to_speak = extract_english_word(result, prompt)
-                    
                     if english_words_to_speak:
-                        try:
-                            tts = gTTS(text=english_words_to_speak, lang='en', slow=False)
-                            mp3_fp = io.BytesIO()
-                            tts.write_to_fp(mp3_fp)
-                            mp3_fp.seek(0)
-                            
-                            audio_bytes = mp3_fp.read()
-                            audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
-                            
-                            audio_html = f"""
-                            <audio controls controlsList="nodownload" style="width: 150px; height: 30px;">
-                                <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
-                            </audio>
-                            """
-                            
-                            st.markdown(audio_html, unsafe_allow_html=True)
-                            
-                            if len(english_words_to_speak.split()) > 5:
-                                caption_text = "Vocalized sentence"
-                            else:
-                                caption_text = "Vocalized word(s)"
-                                
-                            st.caption(f"{caption_text}: **{english_words_to_speak[:100]}{'...' if len(english_words_to_speak) > 100 else ''}**")
-                            
+    cache_key = hashlib.sha256(english_words_to_speak.encode('utf-8')).hexdigest()
+    cache_file = TTS_CACHE_DIR / f"{cache_key}.mp3"
+
+    audio_bytes = None
+    
+    if cache_file.exists():
+        with open(cache_file, "rb") as f:
+            audio_bytes = f.read()
+        # st.caption("TTS: Cached") 
+    else:
+        st.caption("TTS: Generating (API call)...")
+        MAX_RETRIES = 3
+        RETRY_DELAY = 5 
+        tts_success = False
+
+        for attempt in range(MAX_RETRIES):
+            try:
+                tts = gTTS(text=english_words_to_speak, lang='en', slow=False)
+                mp3_fp = io.BytesIO()
+                tts.write_to_fp(mp3_fp)
+                mp3_fp.seek(0)
+                
+                audio_bytes = mp3_fp.read()
+                with open(cache_file, "wb") as f:
+                    f.write(audio_bytes)
+                
+                tts_success = True
+                break
+            
+            except Exception as tts_e:
+                if "Too Many Requests" in str(tts_e) or "429" in str(tts_e) or attempt < MAX_RETRIES - 1:
+                    st.warning(f"⚠️ **TTS API Restriction.** {attempt + 1}th attempt failed. Waiting for {RETRY_DELAY} seconds...")
+                    time.sleep(RETRY_DELAY)
+                else:
+                    st.warning(f"Warning: Could not generate voice after {MAX_RETRIES} attempts. Details: {tts_e}")
+                    break
+
+    if audio_bytes:
+        audio_base64 = base64.b64encode(audio_bytes).decode('utf-8')
+        
+        audio_html = f"""
+        <audio controls controlsList="nodownload" style="width: 150px; height: 30px;">
+            <source src="data:audio/mp3;base64,{audio_base64}" type="audio/mp3">
+        </audio>
+        """
+        
+        st.markdown(audio_html, unsafe_allow_html=True)
+        
+        if len(english_words_to_speak.split()) > 5:
+            caption_text = "Vocalized sentence"
+        else:
+            caption_text = "Vocalized word(s)"
+                
+        st.caption(f"{caption_text}: **{english_words_to_speak[:100]}{'...' if len(english_words_to_speak) > 100 else ''}**")
+
                         except Exception as tts_e:
                             st.warning(f"Warning: Could not generate voice for the English text. Details: {tts_e}")
                             
@@ -454,6 +487,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
