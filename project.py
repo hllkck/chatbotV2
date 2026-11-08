@@ -277,18 +277,7 @@ GENERAL_SYSTEM_PROMPT = "You are a helpful and knowledgeable assistant. Answer t
 
 @st.cache_resource
 def create_rag_chain(_vectorstore: Chroma):
-    import importlib.metadata
-
-    st.write(
-        "langchain-google-genai:",
-        importlib.metadata.version("langchain-google-genai")
-    )
-
-    st.write(
-        "google-genai:",
-        importlib.metadata.version("google-genai")
-    )
-
+    
     with st.spinner("Establishing RAG Chain..."):
 
         llm = ChatGoogleGenerativeAI(
